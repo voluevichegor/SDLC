@@ -1,0 +1,104 @@
+@startuml
+title «Высота и длина» — каркас MVC с активной моделью
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package model {
+  enum LengthUnit {
+    INCH
+    YARD
+    CENTIMETER
+    METER
+    AMERICAN_COCKROACH
+    GIRAFFE_NECK
+    LONGEST_SNAKE
+    HUMAN_TONGUE
+    FOOTBALL_FIELD
+    --
+    +getDisplayName(): String
+    +getMeters(): double
+    +getNote(): String
+  }
+
+  class ConversionInput <<record>> {
+    +value(): double
+    +from(): LengthUnit
+    +to(): LengthUnit
+  }
+
+  class Conversion <<record>> {
+    +input(): ConversionInput
+    +result(): double
+    +inAllUnits(): Map<LengthUnit, Double>
+    +{static} convert(value, from, to): double
+    +{static} of(input): Conversion
+  }
+
+  class InputParser {
+    +{static} parse(raw, from, to): ConversionInput
+  }
+
+  class InvalidInputException
+
+  class InputStorage {
+    +save(input)
+    +load(): Optional<ConversionInput>
+  }
+
+  class ConversionModel {
+    -support: PropertyChangeSupport
+    -conversion: Conversion
+    +setInput(input)
+    +getConversion(): Optional<Conversion>
+    +getLastInput(): Optional<ConversionInput>
+    +addPropertyChangeListener(l)
+  }
+}
+
+package view {
+  class MainFrame {
+    +propertyChange(event)
+    +setInputAction(listener)
+    +showError(parent, message)
+  }
+  class InputDialog {
+    +fill(input)
+    +fillDefaults()
+    +setConvertAction(listener)
+    +getValueText(): String
+    +getFromUnit(): LengthUnit
+    +getToUnit(): LengthUnit
+  }
+  interface PropertyChangeListener
+}
+
+package controller {
+  class ConversionController {
+    -openInputDialog()
+    -submit(dialog)
+  }
+}
+
+class "app.Main" as Main
+
+ConversionInput --> LengthUnit
+Conversion --> ConversionInput
+InputParser ..> ConversionInput : создаёт
+InputParser ..> InvalidInputException : бросает
+ConversionModel --> Conversion
+ConversionModel --> InputStorage
+
+MainFrame ..|> PropertyChangeListener
+ConversionModel ..> PropertyChangeListener : оповещает
+MainFrame --> ConversionModel : подписывается\nи читает состояние
+
+ConversionController --> ConversionModel : setInput()
+ConversionController --> MainFrame
+ConversionController ..> InputDialog : открывает
+ConversionController ..> InputParser : проверяет ввод
+
+Main ..> ConversionModel
+Main ..> MainFrame
+Main ..> ConversionController
+@enduml

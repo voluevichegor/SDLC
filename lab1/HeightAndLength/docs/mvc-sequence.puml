@@ -1,0 +1,32 @@
+@startuml
+title Ввод данных и обновление главного окна (активная модель)
+
+actor Пользователь
+participant MainFrame
+participant ConversionController
+participant InputDialog
+participant InputParser
+participant ConversionModel
+participant InputStorage
+
+Пользователь -> MainFrame : «Ввести данные»
+MainFrame -> ConversionController : actionPerformed
+ConversionController -> ConversionModel : getLastInput()
+ConversionController -> InputDialog : fill(lastInput)
+ConversionController -> InputDialog : open()
+Пользователь -> InputDialog : длина, единицы, «Конвертировать»
+InputDialog -> ConversionController : actionPerformed
+ConversionController -> InputParser : parse(text, from, to)
+
+alt данные некорректны
+  InputParser --> ConversionController : InvalidInputException
+  ConversionController -> MainFrame : showError(dialog, message)
+else данные корректны
+  InputParser --> ConversionController : ConversionInput
+  ConversionController -> ConversionModel : setInput(input)
+  ConversionModel -> InputStorage : save(input)
+  ConversionModel -> MainFrame : propertyChange("conversion")
+  note right of MainFrame : представление обновляется\nпо сигналу модели,\nа не контроллера
+  ConversionController -> InputDialog : dispose()
+end
+@enduml
