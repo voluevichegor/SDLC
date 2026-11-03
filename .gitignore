@@ -1,0 +1,16 @@
+# Результаты сборки IntelliJ IDEA и Maven (в любой папке)
+out/
+target/
+*.class
+
+# Личные настройки IDE в любой папке (общие файлы .idea/*.xml остаются)
+**/.idea/workspace.xml
+**/.idea/usage.statistics.xml
+**/.idea/shelf/
+**/.idea/tasks.xml
+**/.idea/dictionaries/
+
+# Временные файлы ОС и Word
+.DS_Store
+Thumbs.db
+~$*
